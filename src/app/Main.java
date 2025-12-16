@@ -1,4 +1,7 @@
+package app;
 import model.*;
+import service.InMemoryShipmentService;
+import service.ShipmentService;
 
 public class Main {
     public static void main(String[] args) {

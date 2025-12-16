@@ -1,7 +1,10 @@
-package model;
+package service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Shipment;
+import model.ShipmentStatus;
 
 public class InMemoryShipmentService implements ShipmentService {
 
