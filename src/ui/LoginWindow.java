@@ -5,6 +5,7 @@ import service.LoggedUser;
 import service.LoginService;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.SQLException;
 
@@ -18,10 +19,11 @@ public class LoginWindow extends JFrame {
             new LoginService(new UserDAO());
 
     public LoginWindow() {
-        setTitle("Login - Al Rahhala");
-        setSize(350, 200);
-        setLocationRelativeTo(null);
+        setTitle("Al Rahhala - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(420, 320);
+        setLocationRelativeTo(null);
+        setResizable(false);
 
         initComponents();
         layoutComponents();
@@ -29,24 +31,66 @@ public class LoginWindow extends JFrame {
     }
 
     private void initComponents() {
-        usernameField = new JTextField(15);
-        passwordField = new JPasswordField(15);
+        usernameField = new JTextField(18);
+        passwordField = new JPasswordField(18);
+
         loginButton = new JButton("Login");
+        loginButton.setPreferredSize(new Dimension(140, 36));
+        getRootPane().setDefaultButton(loginButton);
     }
 
     private void layoutComponents() {
-        JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
+        JPanel root = new JPanel(new BorderLayout());
+        root.setBorder(new EmptyBorder(18, 18, 18, 18));
 
-        panel.add(new JLabel("Username:"));
-        panel.add(usernameField);
+        // Header
+        JPanel header = new JPanel(new BorderLayout());
+        JLabel title = new JLabel("Al Rahhala Shipping System");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
 
-        panel.add(new JLabel("Password:"));
-        panel.add(passwordField);
+        JLabel subtitle = new JLabel("Sign in to continue");
+        subtitle.setFont(subtitle.getFont().deriveFont(Font.PLAIN, 12f));
 
-        panel.add(new JLabel());
-        panel.add(loginButton);
+        JPanel titleBox = new JPanel();
+        titleBox.setLayout(new BoxLayout(titleBox, BoxLayout.Y_AXIS));
+        titleBox.add(title);
+        titleBox.add(Box.createVerticalStrut(4));
+        titleBox.add(subtitle);
 
-        add(panel, BorderLayout.CENTER);
+        header.add(titleBox, BorderLayout.WEST);
+        root.add(header, BorderLayout.NORTH);
+
+        // Form
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBorder(new EmptyBorder(18, 0, 10, 0));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 0, 8, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        form.add(new JLabel("Username"), gbc);
+
+        gbc.gridy = 1;
+        form.add(usernameField, gbc);
+
+        gbc.gridy = 2;
+        form.add(new JLabel("Password"), gbc);
+
+        gbc.gridy = 3;
+        form.add(passwordField, gbc);
+
+        root.add(form, BorderLayout.CENTER);
+
+        // Actions
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        actions.add(loginButton);
+
+        root.add(actions, BorderLayout.SOUTH);
+
+        add(root);
     }
 
     private void registerListeners() {
@@ -80,7 +124,6 @@ public class LoginWindow extends JFrame {
                 return;
             }
 
-            // فتح نافذة حسب الدور بعد النجاح
             if (user.isAdmin()) {
                 MainWindow mainWindow = new MainWindow(user);
                 mainWindow.setVisible(true);

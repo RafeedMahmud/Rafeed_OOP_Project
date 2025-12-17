@@ -6,6 +6,8 @@ import service.ServiceFactory;
 import service.ShipmentService;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 
 public class ShipmentManagementWindow extends JFrame {
@@ -36,7 +38,7 @@ public class ShipmentManagementWindow extends JFrame {
         this.shipmentService = ServiceFactory.getShipmentService();
 
         setTitle("Al Rahhala - Shipment Management");
-        setSize(900, 420);
+        setSize(900, 520);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -46,7 +48,10 @@ public class ShipmentManagementWindow extends JFrame {
     }
 
     private void initComponents() {
+        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 13);
+
         trackingCodeField = new JTextField(18);
+        trackingCodeField.setFont(fieldFont);
 
         senderNameField = new JTextField(18);
         senderPhoneField = new JTextField(18);
@@ -58,69 +63,153 @@ public class ShipmentManagementWindow extends JFrame {
 
         weightField = new JTextField(18);
 
+        senderNameField.setFont(fieldFont);
+        senderPhoneField.setFont(fieldFont);
+        senderAddressField.setFont(fieldFont);
+        receiverNameField.setFont(fieldFont);
+        receiverPhoneField.setFont(fieldFont);
+        receiverAddressField.setFont(fieldFont);
+        weightField.setFont(fieldFont);
+
         infoLabel = new JLabel(" ");
+        infoLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
         searchButton = new JButton("Search");
         updateInfoButton = new JButton("Update Info");
         backButton = new JButton("Back");
+
+        Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+        Dimension btnSize = new Dimension(140, 36);
+
+        searchButton.setFont(btnFont);
+        updateInfoButton.setFont(btnFont);
+        backButton.setFont(btnFont);
+
+        searchButton.setPreferredSize(btnSize);
+        updateInfoButton.setPreferredSize(btnSize);
+        backButton.setPreferredSize(btnSize);
     }
 
     private void layoutComponents() {
-        JPanel main = new JPanel(new BorderLayout(10, 10));
+        JPanel rootPanel = new JPanel(new BorderLayout(12, 12));
+        rootPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        rootPanel.setBackground(new Color(245, 246, 250));
 
-        // TOP: Search
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
-        searchPanel.add(new JLabel("Tracking Code:"));
-        searchPanel.add(trackingCodeField);
-        searchPanel.add(searchButton);
+        JLabel titleLabel = new JLabel("Shipment Information Management", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titleLabel.setBorder(new EmptyBorder(5, 5, 15, 5));
+        rootPanel.add(titleLabel, BorderLayout.NORTH);
 
-        main.add(searchPanel, BorderLayout.NORTH);
+        // ===== Search Bar =====
+        JPanel searchPanel = new JPanel(new GridBagLayout());
+        searchPanel.setBackground(Color.WHITE);
+        searchPanel.setBorder(new EmptyBorder(12, 12, 12, 12));
 
-        // CENTER: Fields
-        JPanel form = new JPanel(new GridLayout(4, 4, 10, 8));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        form.add(new JLabel("Sender Name:"));
-        form.add(senderNameField);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        searchPanel.add(new JLabel("Tracking Code:"), gbc);
 
-        form.add(new JLabel("Sender Phone:"));
-        form.add(senderPhoneField);
+        gbc.gridx = 1;
+        gbc.weightx = 1;
+        searchPanel.add(trackingCodeField, gbc);
 
-        form.add(new JLabel("Sender Address:"));
-        form.add(senderAddressField);
+        gbc.gridx = 2;
+        gbc.weightx = 0;
+        searchPanel.add(searchButton, gbc);
 
-        form.add(new JLabel("Receiver Name:"));
-        form.add(receiverNameField);
+        // ===== Form Card =====
+        JPanel formCard = new JPanel();
+        formCard.setLayout(new BoxLayout(formCard, BoxLayout.Y_AXIS));
+        formCard.setBackground(Color.WHITE);
+        formCard.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        form.add(new JLabel("Receiver Phone:"));
-        form.add(receiverPhoneField);
+        formCard.add(createSenderPanel());
+        formCard.add(Box.createVerticalStrut(12));
+        formCard.add(createReceiverPanel());
+        formCard.add(Box.createVerticalStrut(12));
+        formCard.add(createShipmentPanel());
 
-        form.add(new JLabel("Receiver Address:"));
-        form.add(receiverAddressField);
+        // ===== Actions =====
+        JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        actionsPanel.setBackground(Color.WHITE);
+        actionsPanel.add(updateInfoButton);
+        actionsPanel.add(backButton);
 
-        form.add(new JLabel("Weight:"));
-        form.add(weightField);
+        JPanel cardContainer = new JPanel(new BorderLayout(10, 10));
+        cardContainer.setBackground(Color.WHITE);
+        cardContainer.add(formCard, BorderLayout.CENTER);
+        cardContainer.add(actionsPanel, BorderLayout.SOUTH);
 
-        // filler cells
-        form.add(new JLabel());
-        form.add(new JLabel());
-        form.add(new JLabel());
-        form.add(new JLabel());
-
-        main.add(form, BorderLayout.CENTER);
-
-        // BOTTOM: Actions (زرّين فقط)
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 10));
-        actions.add(updateInfoButton);
-        actions.add(backButton);
-
-        main.add(actions, BorderLayout.SOUTH);
-
-        // INFO LABEL
-        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        // ===== Info =====
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        infoPanel.setBackground(new Color(245, 246, 250));
         infoPanel.add(infoLabel);
-        main.add(infoPanel, BorderLayout.WEST);
 
-        add(main);
+        JPanel centerPanel = new JPanel(new BorderLayout(12, 12));
+        centerPanel.setBackground(new Color(245, 246, 250));
+        centerPanel.add(searchPanel, BorderLayout.NORTH);
+        centerPanel.add(cardContainer, BorderLayout.CENTER);
+        centerPanel.add(infoPanel, BorderLayout.SOUTH);
+
+        rootPanel.add(centerPanel, BorderLayout.CENTER);
+        setContentPane(rootPanel);
+    }
+
+    private JPanel createSenderPanel() {
+        JPanel panel = createSectionPanel("Sender Information");
+        addField(panel, "Sender Name:", senderNameField, 0);
+        addField(panel, "Sender Phone:", senderPhoneField, 1);
+        addField(panel, "Sender Address:", senderAddressField, 2);
+        return panel;
+    }
+
+    private JPanel createReceiverPanel() {
+        JPanel panel = createSectionPanel("Receiver Information");
+        addField(panel, "Receiver Name:", receiverNameField, 0);
+        addField(panel, "Receiver Phone:", receiverPhoneField, 1);
+        addField(panel, "Receiver Address:", receiverAddressField, 2);
+        return panel;
+    }
+
+    private JPanel createShipmentPanel() {
+        JPanel panel = createSectionPanel("Shipment Details");
+        addField(panel, "Weight:", weightField, 0);
+        return panel;
+    }
+
+    private JPanel createSectionPanel(String title) {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(
+                BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                        title,
+                        TitledBorder.LEFT,
+                        TitledBorder.TOP,
+                        new Font("Segoe UI", Font.BOLD, 14)
+                )
+        );
+        return panel;
+    }
+
+    private void addField(JPanel panel, String labelText, JTextField field, int row) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel(labelText), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        panel.add(field, gbc);
     }
 
     private void registerListeners() {
@@ -196,3 +285,4 @@ public class ShipmentManagementWindow extends JFrame {
         }
     }
 }
+ 

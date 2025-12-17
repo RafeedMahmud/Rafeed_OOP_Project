@@ -4,7 +4,9 @@ import service.ServiceFactory;
 import service.UserService;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
@@ -44,7 +46,7 @@ public class UserManagementWindow extends JFrame {
 
     public UserManagementWindow() {
         setTitle("User Settings (Admin)");
-        setSize(720, 420);
+        setSize(860, 520);
         setLocationRelativeTo(null);
 
         initComponents();
@@ -52,18 +54,32 @@ public class UserManagementWindow extends JFrame {
     }
 
     private void initComponents() {
+        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 13);
+        Font btnFont = new Font("Segoe UI", Font.BOLD, 13);
+
         tabs = new JTabbedPane();
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
         // Add
         addUsername = new JTextField(18);
         addPassword = new JPasswordField(18);
         addRole = new JComboBox<>(new String[]{"ADMIN", "EMPLOYEE"});
         addSaveBtn = new JButton("Add User");
+
+        addUsername.setFont(fieldFont);
+        addPassword.setFont(fieldFont);
+        addRole.setFont(fieldFont);
+        addSaveBtn.setFont(btnFont);
+
         addSaveBtn.addActionListener(e -> doAddUser());
 
         // Delete
         delUsername = new JTextField(18);
         delBtn = new JButton("Delete User");
+
+        delUsername.setFont(fieldFont);
+        delBtn.setFont(btnFont);
+
         delBtn.addActionListener(e -> doDeleteUser());
 
         // Update
@@ -72,6 +88,13 @@ public class UserManagementWindow extends JFrame {
         updRole = new JComboBox<>(new String[]{"ADMIN", "EMPLOYEE"});
         updPassBtn = new JButton("Change Password");
         updRoleBtn = new JButton("Change Role");
+
+        updUsername.setFont(fieldFont);
+        updNewPassword.setFont(fieldFont);
+        updRole.setFont(fieldFont);
+        updPassBtn.setFont(btnFont);
+        updRoleBtn.setFont(btnFont);
+
         updPassBtn.addActionListener(e -> doChangePassword());
         updRoleBtn.addActionListener(e -> doChangeRole());
 
@@ -80,20 +103,36 @@ public class UserManagementWindow extends JFrame {
         searchBtn = new JButton("Search");
         searchResult = new JTextArea(6, 40);
         searchResult.setEditable(false);
+        searchResult.setFont(new Font("Consolas", Font.PLAIN, 13));
+        searchResult.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        searchUsername.setFont(fieldFont);
+        searchBtn.setFont(btnFont);
+
         searchBtn.addActionListener(e -> doSearch());
 
         // List
         usersTable = new JTable();
+        usersTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        usersTable.setRowHeight(26);
+        usersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        usersTable.setFillsViewportHeight(true);
+
+        JTableHeader header = usersTable.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        header.setReorderingAllowed(false);
+
         refreshBtn = new JButton("Refresh List");
+        refreshBtn.setFont(btnFont);
         refreshBtn.addActionListener(e -> loadUsers());
     }
 
     private void buildTabs() {
-        tabs.addTab("Add User", buildAddPanel());
-        tabs.addTab("Delete User", buildDeletePanel());
-        tabs.addTab("Update User", buildUpdatePanel());
-        tabs.addTab("Search", buildSearchPanel());
-        tabs.addTab("All Users", buildListPanel());
+        tabs.addTab("Add User", wrap(buildAddPanel()));
+        tabs.addTab("Delete User", wrap(buildDeletePanel()));
+        tabs.addTab("Update User", wrap(buildUpdatePanel()));
+        tabs.addTab("Search", wrap(buildSearchPanel()));
+        tabs.addTab("All Users", wrap(buildListPanel()));
 
         add(tabs, BorderLayout.CENTER);
 
@@ -101,75 +140,70 @@ public class UserManagementWindow extends JFrame {
         loadUsers();
     }
 
+    private JPanel wrap(JPanel content) {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(new EmptyBorder(15, 15, 15, 15));
+        p.add(content, BorderLayout.CENTER);
+        return p;
+    }
+
     private JPanel buildAddPanel() {
-        JPanel p = new JPanel(new GridLayout(4, 2, 8, 8));
-        p.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        JPanel p = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = baseGbc();
 
-        p.add(new JLabel("Username:"));
-        p.add(addUsername);
+        addRow(p, gbc, 0, "Username:", addUsername);
+        addRow(p, gbc, 1, "Password:", addPassword);
+        addRow(p, gbc, 2, "Role:", addRole);
 
-        p.add(new JLabel("Password:"));
-        p.add(addPassword);
-
-        p.add(new JLabel("Role:"));
-        p.add(addRole);
-
-        p.add(new JLabel());
-        p.add(addSaveBtn);
+        gbc.gridy = 3;
+        gbc.gridx = 1;
+        gbc.weightx = 0;
+        p.add(addSaveBtn, gbc);
 
         return p;
     }
 
     private JPanel buildDeletePanel() {
-        JPanel p = new JPanel(new GridLayout(2, 2, 8, 8));
-        p.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        JPanel p = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = baseGbc();
 
-        p.add(new JLabel("Username:"));
-        p.add(delUsername);
+        addRow(p, gbc, 0, "Username:", delUsername);
 
-        p.add(new JLabel());
-        p.add(delBtn);
+        gbc.gridy = 1;
+        gbc.gridx = 1;
+        p.add(delBtn, gbc);
 
         return p;
     }
 
     private JPanel buildUpdatePanel() {
-        JPanel p = new JPanel(new GridLayout(4, 2, 8, 8));
-        p.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        JPanel p = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = baseGbc();
 
-        p.add(new JLabel("Username:"));
-        p.add(updUsername);
+        addRow(p, gbc, 0, "Username:", updUsername);
+        addRow(p, gbc, 1, "New Password:", updNewPassword);
 
-        p.add(new JLabel("New Password:"));
-        p.add(updNewPassword);
+        gbc.gridy = 2;
+        gbc.gridx = 1;
+        p.add(updPassBtn, gbc);
 
-        p.add(new JLabel());
-        p.add(updPassBtn);
+        addRow(p, gbc, 3, "New Role:", updRole);
 
-        p.add(new JLabel("New Role:"));
-        p.add(updRole);
+        gbc.gridy = 4;
+        gbc.gridx = 1;
+        p.add(updRoleBtn, gbc);
 
-        // زر تغيير role يكون تحت بشكل أوضح
-        JPanel wrapper = new JPanel(new BorderLayout(8, 8));
-        wrapper.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        wrapper.add(p, BorderLayout.CENTER);
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        bottom.add(updRoleBtn);
-        wrapper.add(bottom, BorderLayout.SOUTH);
-
-        return wrapper;
+        return p;
     }
 
     private JPanel buildSearchPanel() {
-        JPanel top = new JPanel();
+        JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         top.add(new JLabel("Username:"));
         top.add(searchUsername);
         top.add(searchBtn);
 
         JPanel center = new JPanel(new BorderLayout());
-        center.setBorder(BorderFactory.createEmptyBorder(10, 15, 15, 15));
+        center.setBorder(new EmptyBorder(10, 0, 0, 0));
         center.add(new JScrollPane(searchResult), BorderLayout.CENTER);
 
         JPanel main = new JPanel(new BorderLayout());
@@ -183,11 +217,30 @@ public class UserManagementWindow extends JFrame {
         JPanel top = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         top.add(refreshBtn);
 
-        JPanel main = new JPanel(new BorderLayout());
+        JPanel main = new JPanel(new BorderLayout(8, 8));
         main.add(top, BorderLayout.NORTH);
         main.add(new JScrollPane(usersTable), BorderLayout.CENTER);
 
         return main;
+    }
+
+    private GridBagConstraints baseGbc() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 8, 6, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
+        return gbc;
+    }
+
+    private void addRow(JPanel p, GridBagConstraints gbc, int row, String label, JComponent field) {
+        gbc.gridy = row;
+        gbc.gridx = 0;
+        gbc.weightx = 0.3;
+        p.add(new JLabel(label), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        p.add(field, gbc);
     }
 
     private void doAddUser() {
@@ -319,9 +372,14 @@ public class UserManagementWindow extends JFrame {
             }
             usersTable.setModel(model);
 
+            JTableHeader header = usersTable.getTableHeader();
+            header.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            header.setReorderingAllowed(false);
+
         } catch (SQLException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Database error:\n" + ex.getMessage());
         }
     }
 }
+ 

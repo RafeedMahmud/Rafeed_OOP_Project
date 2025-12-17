@@ -4,6 +4,8 @@ import dao.ShipmentDAO;
 import service.SQLiteShipmentService;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.sql.SQLException;
 
@@ -26,8 +28,8 @@ public class NewShipmentForm extends JFrame {
             new SQLiteShipmentService(new ShipmentDAO());
 
     public NewShipmentForm() {
-        setTitle("Add New Shipment (SQLite)");
-        setSize(500, 400);
+        setTitle("Add New Shipment");
+        setSize(600, 520);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -37,6 +39,8 @@ public class NewShipmentForm extends JFrame {
     }
 
     private void initComponents() {
+        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 13);
+
         senderNameField = new JTextField(20);
         senderPhoneField = new JTextField(20);
         senderAddressField = new JTextField(20);
@@ -47,39 +51,110 @@ public class NewShipmentForm extends JFrame {
 
         weightField = new JTextField(10);
 
-        saveButton = new JButton("Save to SQLite Database");
+        senderNameField.setFont(fieldFont);
+        senderPhoneField.setFont(fieldFont);
+        senderAddressField.setFont(fieldFont);
+        receiverNameField.setFont(fieldFont);
+        receiverPhoneField.setFont(fieldFont);
+        receiverAddressField.setFont(fieldFont);
+        weightField.setFont(fieldFont);
+
+        saveButton = new JButton("Save Shipment");
+        saveButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        saveButton.setPreferredSize(new Dimension(180, 40));
     }
 
     private void layoutComponents() {
-        JPanel panel = new JPanel(new GridLayout(8, 2, 5, 5));
+        JPanel rootPanel = new JPanel(new BorderLayout(15, 15));
+        rootPanel.setBorder(new EmptyBorder(15, 20, 20, 20));
+        rootPanel.setBackground(new Color(245, 246, 250));
 
-        panel.add(new JLabel("Sender Name:"));
-        panel.add(senderNameField);
+        JLabel titleLabel = new JLabel("New Shipment Information", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titleLabel.setBorder(new EmptyBorder(5, 5, 15, 5));
+        rootPanel.add(titleLabel, BorderLayout.NORTH);
 
-        panel.add(new JLabel("Sender Phone:"));
-        panel.add(senderPhoneField);
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBackground(Color.WHITE);
+        formPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        panel.add(new JLabel("Sender Address:"));
-        panel.add(senderAddressField);
-
-        panel.add(new JLabel("Receiver Name:"));
-        panel.add(receiverNameField);
-
-        panel.add(new JLabel("Receiver Phone:"));
-        panel.add(receiverPhoneField);
-
-        panel.add(new JLabel("Receiver Address:"));
-        panel.add(receiverAddressField);
-
-        panel.add(new JLabel("Weight (kg):"));
-        panel.add(weightField);
+        formPanel.add(createSenderPanel());
+        formPanel.add(Box.createVerticalStrut(15));
+        formPanel.add(createReceiverPanel());
+        formPanel.add(Box.createVerticalStrut(15));
+        formPanel.add(createShipmentInfoPanel());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setBorder(new EmptyBorder(15, 0, 0, 0));
         buttonPanel.add(saveButton);
 
-        getContentPane().setLayout(new BorderLayout(10, 10));
-        getContentPane().add(panel, BorderLayout.CENTER);
-        getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+        JPanel cardPanel = new JPanel(new BorderLayout());
+        cardPanel.setBackground(Color.WHITE);
+        cardPanel.add(formPanel, BorderLayout.CENTER);
+        cardPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        rootPanel.add(cardPanel, BorderLayout.CENTER);
+        setContentPane(rootPanel);
+    }
+
+    private JPanel createSenderPanel() {
+        JPanel panel = createSectionPanel("Sender Information");
+
+        addField(panel, "Sender Name:", senderNameField, 0);
+        addField(panel, "Sender Phone:", senderPhoneField, 1);
+        addField(panel, "Sender Address:", senderAddressField, 2);
+
+        return panel;
+    }
+
+    private JPanel createReceiverPanel() {
+        JPanel panel = createSectionPanel("Receiver Information");
+
+        addField(panel, "Receiver Name:", receiverNameField, 0);
+        addField(panel, "Receiver Phone:", receiverPhoneField, 1);
+        addField(panel, "Receiver Address:", receiverAddressField, 2);
+
+        return panel;
+    }
+
+    private JPanel createShipmentInfoPanel() {
+        JPanel panel = createSectionPanel("Shipment Details");
+
+        addField(panel, "Weight (kg):", weightField, 0);
+
+        return panel;
+    }
+
+    private JPanel createSectionPanel(String title) {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(
+                BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                        title,
+                        TitledBorder.LEFT,
+                        TitledBorder.TOP,
+                        new Font("Segoe UI", Font.BOLD, 14)
+                )
+        );
+        return panel;
+    }
+
+    private void addField(JPanel panel, String labelText, JTextField field, int row) {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.weightx = 0.3;
+        panel.add(new JLabel(labelText), gbc);
+
+        gbc.gridx = 1;
+        gbc.weightx = 0.7;
+        panel.add(field, gbc);
     }
 
     private void registerListeners() {
@@ -97,7 +172,6 @@ public class NewShipmentForm extends JFrame {
 
         String weightText = weightField.getText().trim();
 
-        // basic input validation
         if (senderName.isEmpty() || receiverName.isEmpty() || weightText.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
@@ -124,7 +198,6 @@ public class NewShipmentForm extends JFrame {
             return;
         }
 
-        // بدل SQL هنا: نمرر البيانات للـ Service
         try {
             String trackingCode = shipmentService.saveNewShipment(
                     senderName,
@@ -138,7 +211,7 @@ public class NewShipmentForm extends JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Shipment saved successfully to SQLite.\nTracking Code: " + trackingCode,
+                    "Shipment saved successfully.\nTracking Code: " + trackingCode,
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE
             );
@@ -166,4 +239,4 @@ public class NewShipmentForm extends JFrame {
 
         weightField.setText("");
     }
-}
+} 
