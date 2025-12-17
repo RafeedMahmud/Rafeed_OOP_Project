@@ -80,9 +80,15 @@ public class LoginWindow extends JFrame {
                 return;
             }
 
-            // فتح MainWindow بعد النجاح
-            MainWindow mainWindow = new MainWindow(user);
-            mainWindow.setVisible(true);
+            // فتح نافذة حسب الدور بعد النجاح
+            if (user.isAdmin()) {
+                MainWindow mainWindow = new MainWindow(user);
+                mainWindow.setVisible(true);
+            } else {
+                ShipmentMenuWindow shipmentMenuWindow = new ShipmentMenuWindow(user);
+                shipmentMenuWindow.setVisible(true);
+            }
+
             dispose();
 
         } catch (SQLException ex) {

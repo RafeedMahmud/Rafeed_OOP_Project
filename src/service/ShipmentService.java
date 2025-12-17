@@ -23,4 +23,16 @@ public interface ShipmentService {
     List<Shipment> getAllShipments();
 
     void updateStatus(String trackingCode, ShipmentStatus newStatus);
+
+    // NEW: Update Shipment Info
+    boolean updateShipmentInfo(
+            String trackingCode,
+            String senderName,
+            String senderPhone,
+            String senderAddress,
+            String receiverName,
+            String receiverPhone,
+            String receiverAddress,
+            double weight
+    );
 }

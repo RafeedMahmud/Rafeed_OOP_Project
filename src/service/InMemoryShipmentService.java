@@ -44,12 +44,12 @@ public class InMemoryShipmentService implements ShipmentService {
                 return s;
             }
         }
-        return null; // ممكن لاحقاً نرمي Exception بدال null
+        return null;
     }
 
     @Override
     public List<Shipment> getAllShipments() {
-        return new ArrayList<>(shipments); // نرجّع نسخة عشان ما يتلعبش في الليست الأصلية
+        return new ArrayList<>(shipments);
     }
 
     @Override
@@ -58,8 +58,53 @@ public class InMemoryShipmentService implements ShipmentService {
         if (shipment != null) {
             shipment.updateStatus(newStatus);
         } else {
-            // هنا مثال بسيط على Exception Handling في الـ service
             throw new IllegalArgumentException("Shipment not found with tracking code: " + trackingCode);
         }
+    }
+
+    // NEW: required by ShipmentService after adding updateShipmentInfo
+    @Override
+    public boolean updateShipmentInfo(
+            String trackingCode,
+            String senderName,
+            String senderPhone,
+            String senderAddress,
+            String receiverName,
+            String receiverPhone,
+            String receiverAddress,
+            double weight
+    ) {
+        Shipment shipment = findByTrackingCode(trackingCode);
+        if (shipment == null) {
+            throw new IllegalArgumentException("Shipment not found with tracking code: " + trackingCode);
+        }
+
+        // ملاحظة: Shipment model عندك حالياً ما فيه Setters لتغيير البيانات
+        // لذلك نبدل الشحنة بكائن جديد بنفس trackingCode و id
+        Shipment updated = new Shipment(
+                shipment.getId(),
+                shipment.getTrackingCode(),
+                senderName,
+                senderPhone,
+                senderAddress,
+                receiverName,
+                receiverPhone,
+                receiverAddress,
+                weight
+        );
+
+        // نحافظ على الحالة الحالية إن كانت مختلفة عن REGISTERED
+        if (shipment.getStatus() != null && shipment.getStatus() != ShipmentStatus.REGISTERED) {
+            updated.updateStatus(shipment.getStatus());
+        }
+
+        // استبدال داخل الليست
+        int index = shipments.indexOf(shipment);
+        if (index >= 0) {
+            shipments.set(index, updated);
+            return true;
+        }
+
+        return false;
     }
 }

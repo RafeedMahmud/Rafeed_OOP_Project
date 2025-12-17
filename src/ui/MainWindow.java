@@ -17,14 +17,9 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JButton addShipmentButton = new JButton("Add New Shipment");
-        addShipmentButton.addActionListener(e -> new NewShipmentForm().setVisible(true));
-
-        JButton trackingButton = new JButton("Track Shipment");
-        trackingButton.addActionListener(e -> new TrackingWindow().setVisible(true));
-
-        JButton updateStatusButton = new JButton("Update Status");
-        updateStatusButton.addActionListener(e -> new UpdateStatusWindow().setVisible(true));
+        // NEW: زر واحد للشحنات يفتح صفحة تنظيمية
+        JButton shipmentsButton = new JButton("Shipments");
+        shipmentsButton.addActionListener(e -> new ShipmentMenuWindow(loggedUser).setVisible(true));
 
         JButton dashboardButton = new JButton("Dashboard");
         dashboardButton.addActionListener(e -> new DashboardWindow().setVisible(true));
@@ -32,7 +27,7 @@ public class MainWindow extends JFrame {
         JButton reportsButton = new JButton("Reports");
         reportsButton.addActionListener(e -> new ReportWindow().setVisible(true));
 
-        // NEW: User Settings (Admin only)
+        // User Settings (Admin only)
         JButton userSettingsButton = new JButton("User Settings");
         userSettingsButton.addActionListener(e -> new UserManagementWindow().setVisible(true));
 
@@ -59,9 +54,7 @@ public class MainWindow extends JFrame {
         }
 
         setLayout(new FlowLayout(FlowLayout.CENTER, 15, 20));
-        add(addShipmentButton);
-        add(trackingButton);
-        add(updateStatusButton);
+        add(shipmentsButton);
         add(dashboardButton);
         add(reportsButton);
         add(userSettingsButton);

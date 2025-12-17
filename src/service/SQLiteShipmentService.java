@@ -61,7 +61,31 @@ public class SQLiteShipmentService implements ShipmentService {
         return rows > 0;
     }
 
-    // ====== interface (غير مستخدمة الآن) ======
+    // NEW: Update shipment info (safe)
+    public boolean updateShipmentInfoSafe(
+            String trackingCode,
+            String senderName,
+            String senderPhone,
+            String senderAddress,
+            String receiverName,
+            String receiverPhone,
+            String receiverAddress,
+            double weight
+    ) throws SQLException {
+        int rows = shipmentDAO.updateShipmentInfo(
+                trackingCode,
+                senderName,
+                senderPhone,
+                senderAddress,
+                receiverName,
+                receiverPhone,
+                receiverAddress,
+                weight
+        );
+        return rows > 0;
+    }
+
+    // ====== interface ======
     @Override
     public Shipment createShipment(int id, String trackingCode, String senderName, String senderPhone, String senderAddress,
                                    String receiverName, String receiverPhone, String receiverAddress, double weight) {
@@ -86,6 +110,33 @@ public class SQLiteShipmentService implements ShipmentService {
     public void updateStatus(String trackingCode, ShipmentStatus newStatus) {
         try {
             updateStatusSafe(trackingCode, newStatus);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean updateShipmentInfo(
+            String trackingCode,
+            String senderName,
+            String senderPhone,
+            String senderAddress,
+            String receiverName,
+            String receiverPhone,
+            String receiverAddress,
+            double weight
+    ) {
+        try {
+            return updateShipmentInfoSafe(
+                    trackingCode,
+                    senderName,
+                    senderPhone,
+                    senderAddress,
+                    receiverName,
+                    receiverPhone,
+                    receiverAddress,
+                    weight
+            );
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

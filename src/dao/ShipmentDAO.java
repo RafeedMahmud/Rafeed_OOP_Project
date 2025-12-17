@@ -152,6 +152,47 @@ public class ShipmentDAO {
     }
 
     // ===============================
+    // NEW: UPDATE SHIPMENT INFO
+    // ===============================
+    public int updateShipmentInfo(
+            String trackingCode,
+            String senderName,
+            String senderPhone,
+            String senderAddress,
+            String receiverName,
+            String receiverPhone,
+            String receiverAddress,
+            double weight
+    ) throws SQLException {
+
+        String sql =
+                "UPDATE shipments SET " +
+                        "sender_name = ?, " +
+                        "sender_phone = ?, " +
+                        "sender_address = ?, " +
+                        "receiver_name = ?, " +
+                        "receiver_phone = ?, " +
+                        "receiver_address = ?, " +
+                        "weight = ? " +
+                "WHERE tracking_code = ?";
+
+        try (PreparedStatement ps =
+                     DBConnection.getConnection().prepareStatement(sql)) {
+
+            ps.setString(1, senderName);
+            ps.setString(2, senderPhone);
+            ps.setString(3, senderAddress);
+            ps.setString(4, receiverName);
+            ps.setString(5, receiverPhone);
+            ps.setString(6, receiverAddress);
+            ps.setDouble(7, weight);
+            ps.setString(8, trackingCode);
+
+            return ps.executeUpdate();
+        }
+    }
+
+    // ===============================
     // DASHBOARD COUNTS
     // ===============================
     public int countAllShipments() throws SQLException {
@@ -201,23 +242,24 @@ public class ShipmentDAO {
             }
         }
     }
+
     public ResultSet getShipmentsByStatus(String status) throws SQLException {
-    String sql = "SELECT tracking_code, sender_name, receiver_name, status FROM shipments WHERE status = ?";
+        String sql = "SELECT tracking_code, sender_name, receiver_name, status FROM shipments WHERE status = ?";
 
-    PreparedStatement ps =
-            DBConnection.getConnection().prepareStatement(sql);
-    ps.setString(1, status);
+        PreparedStatement ps =
+                DBConnection.getConnection().prepareStatement(sql);
+        ps.setString(1, status);
 
-    return ps.executeQuery();
-}
+        return ps.executeQuery();
+    }
 
-public ResultSet getAllShipmentsForReport() throws SQLException {
-    String sql = "SELECT tracking_code, sender_name, receiver_name, status FROM shipments";
+    public ResultSet getAllShipmentsForReport() throws SQLException {
+        String sql = "SELECT tracking_code, sender_name, receiver_name, status FROM shipments";
 
-    PreparedStatement ps =
-            DBConnection.getConnection().prepareStatement(sql);
+        PreparedStatement ps =
+                DBConnection.getConnection().prepareStatement(sql);
 
-    return ps.executeQuery();
-}
+        return ps.executeQuery();
+    }
 
 }
