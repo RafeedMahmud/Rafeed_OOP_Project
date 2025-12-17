@@ -1,7 +1,7 @@
 package ui;
 
-import dao.ShipmentDAO;
 import model.ShipmentStatus;
+import service.ServiceFactory;
 import service.SQLiteShipmentService;
 
 import javax.swing.*;
@@ -15,7 +15,7 @@ public class UpdateStatusWindow extends JFrame {
     private JButton updateButton;
 
     private final SQLiteShipmentService shipmentService =
-            new SQLiteShipmentService(new ShipmentDAO());
+            (SQLiteShipmentService) ServiceFactory.getShipmentService();
 
     public UpdateStatusWindow() {
         setTitle("Update Shipment Status");
@@ -35,16 +35,12 @@ public class UpdateStatusWindow extends JFrame {
 
     private void layoutComponents() {
         JPanel panel = new JPanel(new GridLayout(3, 2, 5, 5));
-
         panel.add(new JLabel("Tracking Code:"));
         panel.add(trackingField);
-
         panel.add(new JLabel("New Status:"));
         panel.add(statusCombo);
-
         panel.add(new JLabel());
         panel.add(updateButton);
-
         add(panel);
     }
 
@@ -53,47 +49,22 @@ public class UpdateStatusWindow extends JFrame {
     }
 
     private void doUpdate() {
-        String trackingCode = trackingField.getText().trim();
-        ShipmentStatus status = (ShipmentStatus) statusCombo.getSelectedItem();
-
-        if (trackingCode.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter tracking code",
-                    "Input Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
-
         try {
-            boolean updated = shipmentService.updateStatusSafe(trackingCode, status);
+            boolean updated = shipmentService.updateStatusSafe(
+                    trackingField.getText().trim(),
+                    (ShipmentStatus) statusCombo.getSelectedItem()
+            );
 
             if (!updated) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Tracking Code not found (no update happened).",
-                        "Not Found",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                JOptionPane.showMessageDialog(this, "Tracking code not found");
                 return;
             }
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Status updated successfully",
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Status updated successfully");
 
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Database error:\n" + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Database error");
         }
     }
 }

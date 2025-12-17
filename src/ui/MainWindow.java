@@ -13,40 +13,49 @@ public class MainWindow extends JFrame {
         this.loggedUser = loggedUser;
 
         setTitle("Al Rahhala - Main Window");
-        setSize(650, 260);
+        setSize(900, 260);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JButton addShipmentButton = new JButton("Add New Shipment");
-        addShipmentButton.addActionListener(e -> {
-            NewShipmentForm form = new NewShipmentForm();
-            form.setVisible(true);
-        });
+        addShipmentButton.addActionListener(e -> new NewShipmentForm().setVisible(true));
 
         JButton trackingButton = new JButton("Track Shipment");
-        trackingButton.addActionListener(e -> {
-            new TrackingWindow().setVisible(true);
-        });
+        trackingButton.addActionListener(e -> new TrackingWindow().setVisible(true));
 
         JButton updateStatusButton = new JButton("Update Status");
-        updateStatusButton.addActionListener(e -> {
-            new UpdateStatusWindow().setVisible(true);
-        });
+        updateStatusButton.addActionListener(e -> new UpdateStatusWindow().setVisible(true));
 
         JButton dashboardButton = new JButton("Dashboard");
-        dashboardButton.addActionListener(e -> {
-            new DashboardWindow().setVisible(true);
-        });
+        dashboardButton.addActionListener(e -> new DashboardWindow().setVisible(true));
 
-        JButton reportsButton = new JButton("Reports"); // نخليه للمرحلة الجاية
-        reportsButton.addActionListener(e -> {
-            new ReportWindow().setVisible(true);
+        JButton reportsButton = new JButton("Reports");
+        reportsButton.addActionListener(e -> new ReportWindow().setVisible(true));
+
+        // NEW: User Settings (Admin only)
+        JButton userSettingsButton = new JButton("User Settings");
+        userSettingsButton.addActionListener(e -> new UserManagementWindow().setVisible(true));
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(e -> {
+            int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    "Do you want to logout?",
+                    "Confirm Logout",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (choice == JOptionPane.YES_OPTION) {
+                dispose();
+                new LoginWindow().setVisible(true);
+            }
         });
 
         // الصلاحيات: المدير فقط
         if (!loggedUser.isAdmin()) {
             dashboardButton.setEnabled(false);
             reportsButton.setEnabled(false);
+            userSettingsButton.setEnabled(false);
         }
 
         setLayout(new FlowLayout(FlowLayout.CENTER, 15, 20));
@@ -55,5 +64,7 @@ public class MainWindow extends JFrame {
         add(updateStatusButton);
         add(dashboardButton);
         add(reportsButton);
+        add(userSettingsButton);
+        add(logoutButton);
     }
 }

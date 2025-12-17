@@ -1,7 +1,7 @@
 package ui;
 
-import dao.ShipmentDAO;
 import service.DashboardService;
+import service.ServiceFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,69 +14,43 @@ public class DashboardWindow extends JFrame {
     private JLabel updatedLabel;
     private JLabel todayLabel;
 
-    private JButton refreshButton;
-
     private final DashboardService dashboardService =
-            new DashboardService(new ShipmentDAO());
+            ServiceFactory.getDashboardService();
 
     public DashboardWindow() {
-        setTitle("Dashboard - Statistics");
+        setTitle("Dashboard");
         setSize(420, 260);
         setLocationRelativeTo(null);
 
         initComponents();
-        layoutComponents();
-        registerListeners();
-
         loadStats();
     }
 
     private void initComponents() {
-        totalLabel = new JLabel("Total Shipments: -");
-        registeredLabel = new JLabel("Registered Shipments: -");
-        updatedLabel = new JLabel("Updated Shipments: -");
-        todayLabel = new JLabel("Shipments Today: -");
+        totalLabel = new JLabel();
+        registeredLabel = new JLabel();
+        updatedLabel = new JLabel();
+        todayLabel = new JLabel();
 
-        refreshButton = new JButton("Refresh");
-    }
-
-    private void layoutComponents() {
-        JPanel panel = new JPanel(new GridLayout(5, 1, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(4, 1, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         panel.add(totalLabel);
         panel.add(registeredLabel);
         panel.add(updatedLabel);
         panel.add(todayLabel);
-        panel.add(refreshButton);
 
-        add(panel, BorderLayout.CENTER);
-    }
-
-    private void registerListeners() {
-        refreshButton.addActionListener(e -> loadStats());
+        add(panel);
     }
 
     private void loadStats() {
         try {
-            int total = dashboardService.getTotalShipments();
-            int reg = dashboardService.getRegisteredShipments();
-            int upd = dashboardService.getUpdatedShipments();
-            int today = dashboardService.getTodayShipments();
-
-            totalLabel.setText("Total Shipments: " + total);
-            registeredLabel.setText("Registered Shipments: " + reg);
-            updatedLabel.setText("Updated Shipments: " + upd);
-            todayLabel.setText("Shipments Today: " + today);
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Database error:\n" + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            totalLabel.setText("Total Shipments: " + dashboardService.getTotalShipments());
+            registeredLabel.setText("Registered Shipments: " + dashboardService.getRegisteredShipments());
+            updatedLabel.setText("Updated Shipments: " + dashboardService.getUpdatedShipments());
+            todayLabel.setText("Shipments Today: " + dashboardService.getTodayShipments());
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

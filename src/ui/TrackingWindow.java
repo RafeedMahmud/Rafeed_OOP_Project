@@ -1,7 +1,7 @@
 package ui;
 
-import dao.ShipmentDAO;
 import model.Shipment;
+import service.ServiceFactory;
 import service.SQLiteShipmentService;
 
 import javax.swing.*;
@@ -15,7 +15,7 @@ public class TrackingWindow extends JFrame {
     private JButton searchButton;
 
     private final SQLiteShipmentService shipmentService =
-            new SQLiteShipmentService(new ShipmentDAO());
+            (SQLiteShipmentService) ServiceFactory.getShipmentService();
 
     public TrackingWindow() {
         setTitle("Tracking Search");
@@ -52,42 +52,30 @@ public class TrackingWindow extends JFrame {
         String trackingCode = trackingField.getText().trim();
 
         if (trackingCode.isEmpty()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter tracking code",
-                    "Input Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Please enter tracking code");
             return;
         }
 
         try {
             Shipment shipment = shipmentService.searchByTrackingCode(trackingCode);
+            String status = shipmentService.getStatusFromDatabase(trackingCode);
 
             if (shipment == null) {
                 resultArea.setText("Shipment not found.");
                 return;
             }
 
-            String statusFromDb = shipmentService.getStatusFromDatabase(trackingCode);
-            if (statusFromDb == null) statusFromDb = "UNKNOWN";
-
             resultArea.setText(
                     "Tracking Code: " + shipment.getTrackingCode() + "\n" +
                     "Sender: " + shipment.getSenderName() + "\n" +
                     "Receiver: " + shipment.getReceiverName() + "\n" +
                     "Weight: " + shipment.getWeight() + "\n" +
-                    "Status (DB): " + statusFromDb
+                    "Status: " + status
             );
 
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Database error:\n" + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            JOptionPane.showMessageDialog(this, "Database error");
         }
     }
 }
