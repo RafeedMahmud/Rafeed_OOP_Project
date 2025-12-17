@@ -6,8 +6,8 @@ if not exist bin (
     mkdir bin
 )
 
-REM compile all model + ui classes
-javac -d bin src\model\*.java src\ui\*.java
+REM compile all app + model + dao + service + ui classes
+javac -d bin src\app\*.java src\model\*.java src\dao\*.java src\service\*.java src\ui\*.java
 
 if errorlevel 1 (
     echo.
@@ -21,7 +21,7 @@ echo.
 echo Running GUI with SQLite...
 
 REM add sqlite-jdbc.jar to classpath
-java -cp "bin;lib\sqlite-jdbc.jar" ui.MainWindow
+java -cp "bin;lib\sqlite-jdbc.jar" app.Main
 
 echo.
 pause

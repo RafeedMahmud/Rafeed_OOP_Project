@@ -1,31 +1,59 @@
 package ui;
 
+import service.LoggedUser;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class MainWindow extends JFrame {
 
-    public MainWindow() {
+    private final LoggedUser loggedUser;
+
+    public MainWindow(LoggedUser loggedUser) {
+        this.loggedUser = loggedUser;
+
         setTitle("Al Rahhala - Main Window");
-        setSize(400, 200);
+        setSize(650, 260);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JButton addShipmentButton = new JButton("Add New Shipment");
-
         addShipmentButton.addActionListener(e -> {
             NewShipmentForm form = new NewShipmentForm();
             form.setVisible(true);
         });
 
-        setLayout(new FlowLayout());
-        add(addShipmentButton);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            MainWindow window = new MainWindow();
-            window.setVisible(true);
+        JButton trackingButton = new JButton("Track Shipment");
+        trackingButton.addActionListener(e -> {
+            new TrackingWindow().setVisible(true);
         });
+
+        JButton updateStatusButton = new JButton("Update Status");
+        updateStatusButton.addActionListener(e -> {
+            new UpdateStatusWindow().setVisible(true);
+        });
+
+        JButton dashboardButton = new JButton("Dashboard");
+        dashboardButton.addActionListener(e -> {
+            new DashboardWindow().setVisible(true);
+        });
+
+        JButton reportsButton = new JButton("Reports"); // نخليه للمرحلة الجاية
+        reportsButton.addActionListener(e -> {
+            new ReportWindow().setVisible(true);
+        });
+
+        // الصلاحيات: المدير فقط
+        if (!loggedUser.isAdmin()) {
+            dashboardButton.setEnabled(false);
+            reportsButton.setEnabled(false);
+        }
+
+        setLayout(new FlowLayout(FlowLayout.CENTER, 15, 20));
+        add(addShipmentButton);
+        add(trackingButton);
+        add(updateStatusButton);
+        add(dashboardButton);
+        add(reportsButton);
     }
 }
